@@ -1,6 +1,6 @@
 const form = document.getElementById("uploadForm");
 const responseBox = document.getElementById("response");
-const API_BASE_URL = "API_BASE_URL";
+const API_BASE_URL = "__API_URL__";
 
 form.addEventListener("submit", async (e) => {
     e.preventDefault();
