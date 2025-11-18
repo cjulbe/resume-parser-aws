@@ -6,11 +6,19 @@ from werkzeug.utils import secure_filename
 from resume_parser import parse_resume
 from flask_cors import CORS
 
+def load_bucket():
+    try:
+        with open("/etc/resume_bucket_name", "r") as f:
+            return f.read().strip()
+    except:
+        return None
+
+
+S3_BUCKET = load_bucket()
+s3_client = boto3.client('s3')
+
 app = Flask(__name__)
 CORS(app) # enables Cross-Origin Resource Sharing (CORS) 
-
-S3_BUCKET = os.environ.get("RESUME_BUCKET_NAME")
-s3_client = boto3.client('s3')
 
 @app.route('/upload', methods=['POST'])
 def upload_resume():
