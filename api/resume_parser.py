@@ -3,26 +3,43 @@ import PyPDF2
 
 def parse_resume(file_path):
     data = {"personal": {}, "education": [], "experience": []}
+    
+    print("DEBUG: Parsing file:", file_path)
+    
     if file_path.endswith(".pdf"):
         with open(file_path, 'rb') as f:
             reader = PyPDF2.PdfReader(f)
-            text = " ".join(page.extract_text() for page in reader.pages)
+            text = ""
+
+            # To preserve internal formatting
+            for i, page in reader.pages:
+                extracted = page.extract_text()
+                print(f"DEBUG: Extracted from page {i}:", repr(extracted))
+                if extracted:
+                    text += extracted + "\n" 
     else:
         doc = Document(file_path)
         text = "\n".join([p.text for p in doc.paragraphs])
 
+    print("DEBUG: FINAL TEXT =")
+    print("----------------------------------------------------------")
+    print(text)
+    print("----------------------------------------------------------")
+
     # Dummy parser: assumes Harvard template with sections
     lines = text.splitlines()
     section = None
+    
     for line in lines:
         line = line.strip()
-        if "Education" in line:
+        lower = line.lower()
+        if "Education" in lower:
             section = "education"
             continue
-        if "Experience" in line:
+        if "Experience" in lower:
             section = "experience"
             continue
-        if "Personal" in line or "Contact" in line:
+        if "Personal" in lower or "Contact" in lower:
             section = "personal"
             continue
         if section:
@@ -34,4 +51,3 @@ def parse_resume(file_path):
                 if line:
                     data[section].append(line)
     return data
-
