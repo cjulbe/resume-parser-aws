@@ -1,17 +1,10 @@
-import sys
 from docx import Document
 from pypdf import PdfReader
 
-def log(msg):
-    print(msg)
-    sys.stdout.flush()
 
-    
 def parse_resume(file_path):
     data = {"personal": {}, "education": [], "experience": []}
-    
-    log(f"DEBUG: Parsing file: {file_path}")
-    
+        
     if file_path.endswith(".pdf"):
         with open(file_path, 'rb') as f:
             reader = PdfReader(f)
@@ -20,17 +13,11 @@ def parse_resume(file_path):
             # To preserve internal formatting
             for page in reader.pages:
                 extracted = page.extract_text()
-                log(f"DEBUG: Extracted from page: {repr(extracted)}")
                 if extracted:
                     text += extracted + "\n" 
     else:
         doc = Document(file_path)
         text = "\n".join([p.text for p in doc.paragraphs])
-
-    log("DEBUG: FINAL TEXT =")
-    log("----------------------------------------------------------")
-    log(text)
-    log("----------------------------------------------------------")
 
     # Dummy parser: assumes Harvard template with sections
     lines = text.splitlines()
@@ -57,6 +44,4 @@ def parse_resume(file_path):
                 if line:
                     data[section].append(line)
     
-    log(f"DEBUG: PARSED DATA = {data}")
-
     return data

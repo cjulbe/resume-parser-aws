@@ -4,5 +4,3 @@ boto3
 pypdf
 python-docx
 gunicorn
-sys
-
