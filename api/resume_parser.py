@@ -7,7 +7,7 @@ def parse_resume(file_path):
         
     if file_path.endswith(".pdf"):
         with open(file_path, 'rb') as f:
-            reader = PdfReader(f)
+            reader = PdfReader(f, strict=False)
             text = ""
 
             # To preserve internal formatting
@@ -35,11 +35,32 @@ def parse_resume(file_path):
         if "personal" in lower or "contact" in lower:
             section = "personal"
             continue
+        if "skills" in lower:
+            section = "skills"
+            continue
+        if "projects" in lower:
+            section = "projects"
+            continue
         if section:
             if section == "personal":
-                key_val = line.split(":", 1)
-                if len(key_val) == 2:
-                    data["personal"][key_val[0].strip()] = key_val[1].strip()
+                # Split the long line into parts
+                tokens = line.split()
+
+                # Example fields:
+                # ["Name:", "Carlota", "Email:", "carlota@example.com", "Phone:", "+1", "123-456-7890", ...]
+
+                current_key = None
+                for token in tokens:
+                    if token.endswith(":"):  # New field => key
+                        current_key = token[:-1].lower()
+                        data["personal"][current_key] = ""
+                    else:
+                        if current_key:
+                            # Add token to the active key
+                            if data["personal"][current_key]:
+                                data["personal"][current_key] += " " + token
+                            else:
+                                data["personal"][current_key] = token
             else:
                 if line:
                     data[section].append(line)
