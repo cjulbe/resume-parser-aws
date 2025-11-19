@@ -1,30 +1,36 @@
+import sys
 from docx import Document
-import PyPDF2
+from pypdf import PdfReader
 
+def log(msg):
+    print(msg)
+    sys.stdout.flush()
+
+    
 def parse_resume(file_path):
     data = {"personal": {}, "education": [], "experience": []}
     
-    print("DEBUG: Parsing file:", file_path)
+    log(f"DEBUG: Parsing file: {file_path}")
     
     if file_path.endswith(".pdf"):
         with open(file_path, 'rb') as f:
-            reader = PyPDF2.PdfReader(f)
+            reader = PdfReader(f)
             text = ""
 
             # To preserve internal formatting
-            for i, page in reader.pages:
+            for page in reader.pages:
                 extracted = page.extract_text()
-                print(f"DEBUG: Extracted from page {i}:", repr(extracted))
+                log(f"DEBUG: Extracted from page: {repr(extracted)}")
                 if extracted:
                     text += extracted + "\n" 
     else:
         doc = Document(file_path)
         text = "\n".join([p.text for p in doc.paragraphs])
 
-    print("DEBUG: FINAL TEXT =")
-    print("----------------------------------------------------------")
-    print(text)
-    print("----------------------------------------------------------")
+    log("DEBUG: FINAL TEXT =")
+    log("----------------------------------------------------------")
+    log(text)
+    log("----------------------------------------------------------")
 
     # Dummy parser: assumes Harvard template with sections
     lines = text.splitlines()
@@ -33,13 +39,13 @@ def parse_resume(file_path):
     for line in lines:
         line = line.strip()
         lower = line.lower()
-        if "Education" in lower:
+        if "education" in lower:
             section = "education"
             continue
-        if "Experience" in lower:
+        if "experience" in lower:
             section = "experience"
             continue
-        if "Personal" in lower or "Contact" in lower:
+        if "personal" in lower or "contact" in lower:
             section = "personal"
             continue
         if section:
@@ -50,4 +56,7 @@ def parse_resume(file_path):
             else:
                 if line:
                     data[section].append(line)
+    
+    log(f"DEBUG: PARSED DATA = {data}")
+
     return data
