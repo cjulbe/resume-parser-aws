@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import json
 import os
 import boto3
 from flask import Flask, request, jsonify, send_from_directory
@@ -30,13 +31,26 @@ def upload_resume():
         return jsonify({'status': 'error', 'message': 'No selected file'}), 400
 
     filename = secure_filename(file.filename)
-    file_path = f"/tmp/{filename}"
-    file.save(file_path)
+    
+    try:
+        file_path = f"/tmp/{filename}"
+        file.save(file_path)
+    finally:
+        if os.path.exists(file_path):
+            os.remove(file_path)
 
-    parsed_data = parse_resume(file_path)
+    try:
+        parsed_data = parse_resume(file_path)
+    except Exception as e:
+        return jsonify({"error": f"Failed to parse resume: {str(e)}"}), 400
 
     s3_key = f"resumes/{os.path.splitext(filename)[0]}.json"
-    s3_client.put_object(Bucket=S3_BUCKET, Key=s3_key, Body=str(parsed_data))
+    s3_client.put_object(
+        Bucket=S3_BUCKET, 
+        Key=s3_key, 
+        Body=json.dumps(parsed_data).encode("utf-8"), #Body parameter requires a bytes object
+        ContentType="application/json" # for S3 to know it contains valid JSON
+        )
 
     return jsonify({'status': 'success', 's3_key': s3_key})
 

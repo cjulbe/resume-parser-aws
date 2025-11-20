@@ -19,8 +19,15 @@ form.addEventListener("submit", async (e) => {
             body: formData
         });
 
+        // Check if backend returned HTML or a 500 and stop here
+        if (!res.ok) {
+            const text = await res.text();
+            throw new Error(`Server error ${res.status}:\n${text}`);
+        }
+
         const data = await res.json();
         responseBox.textContent = JSON.stringify(data, null, 2);
+        
     } catch (err) {
         responseBox.textContent = "Error: " + err.message;
     }

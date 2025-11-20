@@ -1,5 +1,5 @@
 from docx import Document
-from pypdf import PdfReader
+import PyPDF2
 
 
 def parse_resume(file_path):
@@ -7,11 +7,9 @@ def parse_resume(file_path):
         
     if file_path.endswith(".pdf"):
         with open(file_path, 'rb') as f:
-            reader = PdfReader(f, strict=False)
-            text = ""
-
-            page = reader.pages[0]
-            text = page.extract_text()
+            reader = PyPDF2.PdfReader(f)
+            text = " ".join(page.extract_text() for page in reader.pages)
+            
             # To preserve internal formatting
             #for page in reader.pages:
             #    extracted = page.extract_text()
