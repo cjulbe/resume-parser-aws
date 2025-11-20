@@ -10,11 +10,13 @@ def parse_resume(file_path):
             reader = PdfReader(f, strict=False)
             text = ""
 
+            page = reader.pages[0]
+            text = page.extract_text()
             # To preserve internal formatting
-            for page in reader.pages:
-                extracted = page.extract_text()
-                if extracted:
-                    text += extracted + "\n" 
+            #for page in reader.pages:
+            #    extracted = page.extract_text()
+            #    if extracted:
+            #        text += extracted + "\n" 
     else:
         doc = Document(file_path)
         text = "\n".join([p.text for p in doc.paragraphs])
