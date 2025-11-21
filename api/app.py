@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
+import json
 import os
+import uuid
 import boto3
 from flask import Flask, request, jsonify, send_from_directory
 from werkzeug.utils import secure_filename
@@ -30,7 +32,8 @@ def upload_resume():
         return jsonify({'status': 'error', 'message': 'No selected file'}), 400
 
     filename = secure_filename(file.filename)
-    file_path = f"/tmp/{filename}"
+    unique_name = f"{uuid.uuid4()}_{filename}"
+    file_path = f"/tmp/{unique_name}"
     file.save(file_path)
 
     parsed_data = parse_resume(file_path)
@@ -40,7 +43,7 @@ def upload_resume():
         os.remove(file_path)
 
     s3_key = f"resumes/{os.path.splitext(filename)[0]}.json"
-    s3_client.put_object(Bucket=S3_BUCKET, Key=s3_key, Body=str(parsed_data))
+    s3_client.put_object(Bucket=S3_BUCKET, Key=s3_key, Body=json.dumps(parsed_data))
 
     return jsonify({'status': 'success', 's3_key': s3_key})
 

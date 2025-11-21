@@ -13,7 +13,7 @@ def parse_resume(file_path):
     if file_path.endswith(".pdf"):
         text = ""
         with open(file_path, 'rb') as f:
-            reader = PdfReader(file_path, strict=False)
+            reader = PdfReader(f, strict=False)
             for page in reader.pages:
                 extracted = page.extract_text() or ""
                 text += extracted + "\n"
