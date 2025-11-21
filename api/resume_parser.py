@@ -3,7 +3,13 @@ from pypdf import PdfReader
 
 
 def parse_resume(file_path):
-    data = {"personal": {}, "education": [], "experience": []}
+    data = {
+    "personal": {},
+    "education": [],
+    "experience": [],
+    "skills": [],
+    "projects": []
+}
         
     if file_path.endswith(".pdf"):
         with open(file_path, 'rb') as f:
@@ -12,9 +18,8 @@ def parse_resume(file_path):
 
             # To preserve internal formatting
             for page in reader.pages:
-                extracted = page.extract_text()
-                if extracted:
-                    text += extracted + "\n" 
+                extracted = page.extract_text() or ""
+                text += extracted + "\n" 
     else:
         doc = Document(file_path)
         text = "\n".join([p.text for p in doc.paragraphs])
