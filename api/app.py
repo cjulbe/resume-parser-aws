@@ -37,7 +37,7 @@ def upload_resume():
 
     # Clean up temp file
     if os.path.exists(file_path):
-    os.remove(file_path)
+        os.remove(file_path)
 
     s3_key = f"resumes/{os.path.splitext(filename)[0]}.json"
     s3_client.put_object(Bucket=S3_BUCKET, Key=s3_key, Body=str(parsed_data))
