@@ -35,9 +35,20 @@ def upload_resume():
     unique_name = f"{uuid.uuid4()}_{filename}"
     file_path = f"/tmp/{unique_name}"
     file.save(file_path)
+    
+    try:
+        parsed_data = parse_resume(file_path)
 
-    parsed_data = parse_resume(file_path)
+    except Exception as e:
+        # Clean up temp file before returning
+        if os.path.exists(file_path):
+            os.remove(file_path)
 
+        return jsonify({
+            'status': 'error',
+            'message': f'Error parsing resume: {str(e)}'
+        }), 400
+    
     # Clean up temp file
     if os.path.exists(file_path):
         os.remove(file_path)

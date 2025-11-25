@@ -18,8 +18,11 @@ def parse_resume(file_path):
                 extracted = page.extract_text() or ""
                 text += extracted + "\n"
     else:
-        doc = Document(file_path)
-        text = "\n".join([p.text for p in doc.paragraphs])
+        try:
+            doc = Document(file_path)
+            text = "\n".join([p.text for p in doc.paragraphs])
+        except Exception as e:
+            return {"error": f"DOCX parsing failed: {e}"}
 
     # Dummy parser: assumes Harvard template with sections
     lines = text.splitlines()
