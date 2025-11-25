@@ -7,6 +7,15 @@ form.addEventListener("submit", async (e) => {
     const fileInput = document.getElementById("resumeFile");
     const file = fileInput.files[0];
     if (!file) return;
+    
+    // --- Basic file validation (requirement #3) ---
+    const allowedExtensions = [".pdf", ".docx"];
+    const fileName = file.name.toLowerCase();
+
+    if (!allowedExtensions.some(ext => fileName.endsWith(ext))) {
+        responseBox.textContent = "Error: Only PDF or DOCX files are allowed.";
+        return;
+    }
 
     const formData = new FormData();
     formData.append("file", file);
