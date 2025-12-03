@@ -1,6 +1,25 @@
 from docx import Document
 from pypdf import PdfReader
 
+# PDF lines get merged into the previous entry unless they are clearly a new line
+def append_or_merge(lst, line, merge=False):
+    if not merge:
+        lst.append(line)
+        return
+    
+    # When merge=True it's the PDF case
+    if not lst:
+        lst.append(line)
+        return
+    
+    # Detect if the line clearly starts a new entry
+    if line[0].isupper() and ":" in line:
+        lst.append(line)
+        return
+    
+    # Otherwise merge with previous entry
+    lst[-1] += " " + line
+
 def parse_resume(file_path):
     data = {
     "personal": {},
@@ -9,7 +28,7 @@ def parse_resume(file_path):
     "skills": [],
     "projects": []
 }
-        
+    is_pdf = file_path.endswith(".pdf")
     if file_path.endswith(".pdf"):
         text = ""
         with open(file_path, 'rb') as f:
@@ -68,6 +87,6 @@ def parse_resume(file_path):
                                 data["personal"][current_key] = token
             else:
                 if line:
-                    data[section].append(line)
+                    append_or_merge(data[section], line, merge=is_pdf)
     
     return data
