@@ -36,6 +36,8 @@ form.addEventListener("submit", async (e) => {
 
         const data = await res.json();
         responseBox.textContent = JSON.stringify(data, null, 2);
+        // Reset the file input after success
+        fileInput.value = "";
         
     } catch (err) {
         responseBox.textContent = "Error: " + err.message;
