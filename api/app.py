@@ -58,3 +58,6 @@ def upload_resume():
 
     return jsonify({'status': 'success', 's3_key': s3_key})
 
+@app.get("/health")
+def health():
+    return {"status": "ok"}, 200
